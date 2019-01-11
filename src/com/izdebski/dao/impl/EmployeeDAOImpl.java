@@ -4,19 +4,19 @@ import java.util.List;
 
 import com.izdebski.dao.EmployeeDAO;
 import com.izdebski.model.Employee;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Repository;
 
+import javax.annotation.PostConstruct;
+import javax.sql.DataSource;
+
+@Repository
 public class EmployeeDAOImpl extends NamedParameterJdbcDaoSupport implements EmployeeDAO {
 
-    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-
-    /* public void setNamedParameterJdbcTemplate(
-            NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
-        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
-    } */
-
+    @Autowired
+    private DataSource dataSource;
 
     @Override
     public Employee getEmployeeById(int employeeId) {
@@ -37,7 +37,7 @@ public class EmployeeDAOImpl extends NamedParameterJdbcDaoSupport implements Emp
         MapSqlParameterSource inputMap = new MapSqlParameterSource();
         inputMap.addValue("empId", employeeId);
 
-        int update = namedParameterJdbcTemplate.update(SQL, inputMap);
+        int update = getNamedParameterJdbcTemplate().update(SQL, inputMap);
         if(update>0)
             System.out.println("Employee is deleted..");
     }
@@ -80,5 +80,10 @@ public class EmployeeDAOImpl extends NamedParameterJdbcDaoSupport implements Emp
 
         if(update>0)
             System.out.println("Employee is created...");
+    }
+
+    @PostConstruct
+    public void init(){
+     setDataSource(dataSource);
     }
 }
